@@ -1,24 +1,22 @@
 package service;
 
 import model.Hotel;
+import repository.HotelRepository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class HotelService {
-    private List<Hotel> hotels;
+    private HotelRepository hotelRepository;
 
-    public HotelService(List<Hotel> hotels) {
-        this.hotels = hotels;
-    }
-
-    public List<Hotel> searchHotelsByLocation(String location) {
-        return hotels.stream()
-                .filter(hotel -> hotel.getLocation().equalsIgnoreCase(location))
-                .collect(Collectors.toList());
+    public HotelService(HotelRepository hotelRepository) {
+        this.hotelRepository = hotelRepository;
     }
 
     public List<Hotel> getAllHotels() {
-        return hotels;
+        return hotelRepository.findAll();
+    }
+
+    public List<Hotel> searchHotelsByLocation(String location) {
+        return hotelRepository.findByLocation(location);
     }
 }

@@ -1,46 +1,48 @@
-import controller.*;
 import model.*;
+import repository.*;
 import service.*;
 
 import java.util.*;
 
-public class HotelManagementApplication {
+public class HotelManagementApp {
     public static void main(String[] args) {
-        // Initialize data
-        Hotel hotel1 = new Hotel("H001", "The Grand Hotel", "New Delhi", 4.5);
-        Hotel hotel2 = new Hotel("H002", "Sea View Resort", "Goa", 4.8);
+        // Repositories
+        HotelRepository hotelRepository = new HotelRepository();
+        GuestRepository guestRepository = new GuestRepository();
+        BookingRepository bookingRepository = new BookingRepository();
 
+        // Services
+        HotelService hotelService = new HotelService(hotelRepository);
+        GuestService guestService = new GuestService(guestRepository);
+        BookingService bookingService = new BookingService(bookingRepository, hotelRepository);
+
+        // Data Initialization
+        Hotel hotel = new Hotel("H001", "The Grand", "New Delhi", 4.5);
         Room room1 = new Room("R101", "Single", 2000);
         Room room2 = new Room("R102", "Double", 3000);
-        hotel1.addRoom(room1);
-        hotel1.addRoom(room2);
+        hotel.addRoom(room1);
+        hotel.addRoom(room2);
+        hotelRepository.save(hotel);
 
-        Room room3 = new Room("R201", "Single", 2500);
-        Room room4 = new Room("R202", "Double", 3500);
-        hotel2.addRoom(room3);
-        hotel2.addRoom(room4);
-
-        // Services and Controllers
-        HotelService hotelService = new HotelService(Arrays.asList(hotel1, hotel2));
-        BookingService bookingService = new BookingService();
-
-        HotelController hotelController = new HotelController(hotelService);
-        BookingController bookingController = new BookingController(bookingService);
-
-        // Search hotels
-        System.out.println("Hotels in New Delhi:");
-        List<Hotel> hotels = hotelController.searchHotels("New Delhi");
-        hotels.forEach(System.out::println);
-
-        // Create Booking
         Guest guest = new Guest("G001", "Kapil Garg", "9876543210", "kapil@example.com");
-        Booking booking = bookingController.createBooking(guest, hotel1, room1, new Date(), new Date());
-        System.out.println("\nBooking Created:");
-        System.out.println(booking);
+        guestService.saveGuest(guest);
 
-        // Generate Bill
-        Bill bill = bookingController.generateBill(booking);
-        System.out.println("\nGenerated Bill:");
-        System.out.println(bill);
+        // Fetch and display all hotels
+        System.out.println("All Hotels: ");
+        List<Hotel> hotels = hotelService.getAllHotels();
+        for (Hotel h : hotels) {
+            System.out.println(h);
+        }
+
+        // Search hotels by location
+        System.out.println("Hotels in 'New Delhi': ");
+        List<Hotel> delhiHotels = hotelService.searchHotelsByLocation("New Delhi");
+        for (Hotel h : delhiHotels) {
+            System.out.println(h);
+        }
+
+        // Book a room
+        Booking booking = bookingService.createBooking(guest, "H001", "R101", new Date(), new Date());
+        System.out.println("Booking created: " + booking);
     }
 }
